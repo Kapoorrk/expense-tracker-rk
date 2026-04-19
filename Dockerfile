@@ -1,21 +1,28 @@
-# Use Eclipse Temurin JDK 17
-FROM eclipse-temurin:17-jdk
+# Multi-stage build for Expense Tracker Backend
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
-# Set working directory
+WORKDIR /build
+
+# Copy entire project
+COPY . .
+
+# Build only the backend
+RUN cd backend && mvn clean package -DskipTests
+
+# Final stage
+FROM eclipse-temurin:17-jre-alpine
+
 WORKDIR /app
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven
-
-# Copy backend Maven files
-COPY backend/pom.xml .
-COPY backend/src ./src
-
-# Build the application
-RUN mvn clean package -DskipTests
+# Copy the built JAR from builder stage
+COPY --from=builder /build/backend/target/expense-tracker-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080
 
+# Set Java options for production
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
 # Run the application
-CMD ["java", "-jar", "target/expense-tracker-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
