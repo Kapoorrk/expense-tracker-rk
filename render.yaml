@@ -32,4 +32,3 @@ databases:
   - name: expense-tracker-db
     plan: free
     databaseName: expenses_db
-    user: postgres
