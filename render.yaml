@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: expense-tracker-backend
+    runtime: java
+    plan: free
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: cd backend && java -jar target/expense-tracker-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: JAVA_VERSION
+        value: "17"
+      - key: DB_HOST
+        fromDatabase:
+          name: expense-tracker-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: expense-tracker-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: expense-tracker-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: expense-tracker-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: expense-tracker-db
+          property: password
+      - key: CORS_ORIGIN
+        value: "*"
+
+databases:
+  - name: expense-tracker-db
+    plan: free
+    databaseName: expenses_db
+    user: postgres
